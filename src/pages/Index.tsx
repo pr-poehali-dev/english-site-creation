@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 const vocabularyData = [
@@ -222,6 +223,7 @@ export default function Index() {
   const [learnedWords, setLearnedWords] = useState(0);
   const [currentExercise, setCurrentExercise] = useState(0);
   const [score, setScore] = useState(0);
+  const [selectedPost, setSelectedPost] = useState<typeof blogPosts[0] | null>(null);
 
   const handleNextCard = () => {
     setCurrentCardIndex((prev) => (prev + 1) % vocabularyData.length);
@@ -366,7 +368,7 @@ export default function Index() {
                 <h3 className="text-2xl font-semibold mb-8 text-center">Блог об изучении английского</h3>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {blogPosts.map((post) => (
-                    <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer group animate-fade-in">
+                    <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer group animate-fade-in" onClick={() => setSelectedPost(post)}>
                       <CardContent className="p-6">
                         <Badge className="mb-3">{post.category}</Badge>
                         <h4 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
@@ -404,6 +406,37 @@ export default function Index() {
           <p>© 2024 English Learning Platform. Учись с удовольствием!</p>
         </div>
       </footer>
+
+      <Dialog open={!!selectedPost} onOpenChange={(open) => !open && setSelectedPost(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          {selectedPost && (
+            <>
+              <DialogHeader>
+                <div className="mb-4">
+                  <Badge className="mb-3">{selectedPost.category}</Badge>
+                  <DialogTitle className="text-3xl font-bold mb-4">{selectedPost.title}</DialogTitle>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                      <Icon name="Calendar" size={16} className="mr-2" />
+                      {selectedPost.date}
+                    </div>
+                    <div className="flex items-center">
+                      <Icon name="Clock" size={16} className="mr-2" />
+                      {selectedPost.readTime}
+                    </div>
+                  </div>
+                </div>
+              </DialogHeader>
+              <div className="prose prose-lg max-w-none">
+                <p className="text-lg text-muted-foreground mb-6 italic">{selectedPost.excerpt}</p>
+                <div className="text-foreground/90 leading-relaxed whitespace-pre-line">
+                  {selectedPost.content}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
