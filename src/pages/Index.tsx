@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -218,16 +218,96 @@ function ExerciseCard({ exercise, onAnswer }: { exercise: typeof exercises[0], o
   );
 }
 
+const PROGRESS_API = 'https://functions.poehali.dev/7c9ff1d7-87fa-4d64-851f-4d21653e6853';
+
+function getUserId() {
+  let userId = localStorage.getItem('english_learning_user_id');
+  if (!userId) {
+    userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem('english_learning_user_id', userId);
+  }
+  return userId;
+}
+
 export default function Index() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [learnedWords, setLearnedWords] = useState(0);
   const [currentExercise, setCurrentExercise] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedPost, setSelectedPost] = useState<typeof blogPosts[0] | null>(null);
+  const [learnedWordIds, setLearnedWordIds] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProgress = async () => {
+      try {
+        const userId = getUserId();
+        const response = await fetch(PROGRESS_API, {
+          method: 'GET',
+          headers: {
+            'X-User-Id': userId
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setLearnedWords(data.learnedWordsCount || 0);
+          setScore(data.exerciseScore || 0);
+          setCurrentCardIndex(data.lastCardIndex || 0);
+          setCurrentExercise(data.lastExerciseIndex || 0);
+          setLearnedWordIds(data.learnedWords || []);
+        }
+      } catch (error) {
+        console.error('Failed to load progress:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadProgress();
+  }, []);
+
+  const saveProgress = async () => {
+    try {
+      const userId = getUserId();
+      await fetch(PROGRESS_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({
+          learnedWordsCount: learnedWords,
+          exerciseScore: score,
+          lastCardIndex: currentCardIndex,
+          lastExerciseIndex: currentExercise,
+          learnedWords: learnedWordIds
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading) {
+      const timeoutId = setTimeout(() => {
+        saveProgress();
+      }, 1000);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [learnedWords, score, currentCardIndex, currentExercise, learnedWordIds, isLoading]);
 
   const handleNextCard = () => {
-    setCurrentCardIndex((prev) => (prev + 1) % vocabularyData.length);
-    setLearnedWords((prev) => Math.min(prev + 1, vocabularyData.length));
+    const newIndex = (currentCardIndex + 1) % vocabularyData.length;
+    setCurrentCardIndex(newIndex);
+    
+    const currentWordId = vocabularyData[currentCardIndex].id;
+    if (!learnedWordIds.includes(currentWordId)) {
+      setLearnedWords((prev) => Math.min(prev + 1, vocabularyData.length));
+      setLearnedWordIds((prev) => [...prev, currentWordId]);
+    }
   };
 
   const handleExerciseAnswer = (correct: boolean) => {
@@ -236,6 +316,17 @@ export default function Index() {
   };
 
   const progress = (learnedWords / vocabularyData.length) * 100;
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Icon name="Loader2" className="animate-spin mx-auto mb-4 text-primary" size={48} />
+          <p className="text-muted-foreground">Загрузка прогресса...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-accent/20">

@@ -1,0 +1,39 @@
+{
+  "tests": [
+    {
+      "name": "Get user progress - new user",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "learnedWordsCount": 0,
+        "exerciseScore": 0,
+        "lastCardIndex": 0
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Save user progress",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-456"
+      },
+      "body": {
+        "learnedWordsCount": 5,
+        "exerciseScore": 3,
+        "lastCardIndex": 2,
+        "lastExerciseIndex": 1,
+        "learnedWords": [1, 2, 3, 4, 5]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
