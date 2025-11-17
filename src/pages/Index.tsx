@@ -67,6 +67,63 @@ const exercises = [
   }
 ];
 
+const blogPosts = [
+  {
+    id: 1,
+    title: '10 советов для эффективного изучения английского',
+    excerpt: 'Узнайте проверенные методы, которые помогут вам быстрее освоить английский язык и говорить уверенно.',
+    date: '15 ноября 2024',
+    readTime: '5 мин',
+    category: 'Советы',
+    content: 'Изучение английского языка — это путешествие, которое требует времени и усилий. Вот 10 советов, которые помогут вам на этом пути: 1) Занимайтесь каждый день хотя бы 15 минут. 2) Смотрите фильмы и сериалы на английском с субтитрами. 3) Читайте книги и статьи на интересующие вас темы. 4) Общайтесь с носителями языка онлайн. 5) Используйте флэш-карточки для запоминания новых слов.'
+  },
+  {
+    id: 2,
+    title: 'Самые распространенные ошибки в английском',
+    excerpt: 'Разбираем типичные ошибки русскоговорящих студентов и способы их избежать.',
+    date: '12 ноября 2024',
+    readTime: '7 мин',
+    category: 'Грамматика',
+    content: 'Многие изучающие английский делают похожие ошибки. Одна из самых частых — неправильное использование артиклей. Русскоговорящие часто забывают про артикли, так как в русском языке их нет. Другая распространенная ошибка — порядок слов в предложении. В английском он более строгий, чем в русском.'
+  },
+  {
+    id: 3,
+    title: 'Как улучшить произношение: практические упражнения',
+    excerpt: 'Простые и эффективные техники для работы над акцентом и четкостью речи.',
+    date: '8 ноября 2024',
+    readTime: '6 мин',
+    category: 'Произношение',
+    content: 'Хорошее произношение — ключ к уверенному общению. Начните с изучения фонетики и звуков, которых нет в русском языке. Записывайте свою речь и сравнивайте с носителями. Практикуйте скороговорки и повторяйте за аудио материалами.'
+  },
+  {
+    id: 4,
+    title: 'Лучшие приложения для изучения английского в 2024',
+    excerpt: 'Обзор современных приложений и платформ, которые сделают обучение интересным и эффективным.',
+    date: '5 ноября 2024',
+    readTime: '8 мин',
+    category: 'Ресурсы',
+    content: 'Современные технологии открывают множество возможностей для изучения языков. Мы протестировали десятки приложений и отобрали лучшие для разных целей: от грамматики до разговорной практики.'
+  },
+  {
+    id: 5,
+    title: 'Английский для путешествий: базовые фразы',
+    excerpt: 'Необходимый минимум английского для комфортного общения за границей.',
+    date: '1 ноября 2024',
+    readTime: '4 мин',
+    category: 'Разговорный',
+    content: 'Собираетесь в путешествие? Эти фразы помогут вам в отеле, ресторане, магазине и на улице. Выучите их заранее, и ваша поездка станет намного комфортнее.'
+  },
+  {
+    id: 6,
+    title: 'Времена в английском: полное руководство',
+    excerpt: 'Подробный разбор всех времен с примерами и схемами для быстрого понимания.',
+    date: '28 октября 2024',
+    readTime: '12 мин',
+    category: 'Грамматика',
+    content: 'Времена в английском часто пугают начинающих. На самом деле, систему можно освоить быстро, если понять логику. В этой статье мы разберем все времена с практическими примерами.'
+  }
+];
+
 function FlashCard({ word, onNext }: { word: typeof vocabularyData[0], onNext: () => void }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -221,7 +278,7 @@ export default function Index() {
           </div>
 
           <Tabs defaultValue="flashcards" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="flashcards" className="text-base">
                 <Icon name="CreditCard" className="mr-2" size={18} />
                 Флэш-карточки
@@ -233,6 +290,10 @@ export default function Index() {
               <TabsTrigger value="exercises" className="text-base">
                 <Icon name="PenTool" className="mr-2" size={18} />
                 Упражнения
+              </TabsTrigger>
+              <TabsTrigger value="blog" className="text-base">
+                <Icon name="Newspaper" className="mr-2" size={18} />
+                Блог
               </TabsTrigger>
             </TabsList>
 
@@ -297,6 +358,41 @@ export default function Index() {
                   exercise={exercises[currentExercise]}
                   onAnswer={handleExerciseAnswer}
                 />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="blog" className="mt-8">
+              <div className="max-w-5xl mx-auto">
+                <h3 className="text-2xl font-semibold mb-8 text-center">Блог об изучении английского</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {blogPosts.map((post) => (
+                    <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer group animate-fade-in">
+                      <CardContent className="p-6">
+                        <Badge className="mb-3">{post.category}</Badge>
+                        <h4 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
+                          {post.title}
+                        </h4>
+                        <p className="text-muted-foreground mb-4 text-sm line-clamp-3">
+                          {post.excerpt}
+                        </p>
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <div className="flex items-center">
+                            <Icon name="Calendar" size={14} className="mr-1" />
+                            {post.date}
+                          </div>
+                          <div className="flex items-center">
+                            <Icon name="Clock" size={14} className="mr-1" />
+                            {post.readTime}
+                          </div>
+                        </div>
+                        <Button variant="ghost" className="w-full mt-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          Читать статью
+                          <Icon name="ArrowRight" className="ml-2" size={16} />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             </TabsContent>
           </Tabs>
